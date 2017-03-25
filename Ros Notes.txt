@@ -1,0 +1,27 @@
+ learn.turtlebot.org
+ 
+ -Simulation Bringup: (we use indigo) sudo nautilus
+ roslaunch turtlebot_gazebo turtlebot_world.launch
+ 
+ -Navigation bringup: http://wiki.ros.osuosl.org/turtlebot_gazebo/Tutorials/indigo/Make%20a%20map%20and%20navigate%20with%20it
+ (start the world)
+ roslaunch turtlebot_gazebo turtlebot_world.launch
+ (or for other worlds: roslaunch turtlebot_gazebo turtlebot_world.launch world_file:=worlds/willowgarage.world) etc
+ 
+ (open rviz to see)
+ roslaunch turtlebot_gazebo gmapping_demo.launch
+-Gazebo Bringup:
+	roslaunch turtlebot_gazebo turtlebot_world.launch
+	roslaunch turtlebot_teleop keyboard_teleop.launch
+	roslaunch turtlebot_rviz_launchers view_robot.launch
+
+ -Gmapping Demo:
+ roslaunch turtlebot_gazebo gmapping_demo.launch
+ roslaunch turtlebot_rviz_launchers view_navigation.launch
+ roslaunch turtlebot_teleop keyboard_teleop.launch
+
+rostopic list -v gives a good verbose list of pubs and subs
+rostopic pub can directly publish data "http://wiki.ros.org/ROS/Tutorials/UnderstandingTopics"
+Topics, services (request response), params (variables stored on server)
+rosed <package> <file name> opens a file in sublime :)
+ eg. rosed beginner_tutorials package.xml
