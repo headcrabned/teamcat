@@ -3,5 +3,6 @@
 	<include file="$(find turtlebot_rviz_launchers)/launch/view_navigation.launch"/>
 
 	<node pkg="laser_tracking" type="pathPlanner.py" name="PathPlanner" required="true" output="screen"/>
+	<node pkg="laser_tracking" type="cv_test_circle.py" name="VideoFeed" required="true" output="screen"/>
 
 </launch>

@@ -30,7 +30,7 @@ def goalCB(data):
         print(e)
 
 #Callback for getting robot position data
-def odometryCb(data):
+def odometryCb(msg):
     robotPos = msg.pose.pose.position
     robX = robotPos.x
     robY = robotPos.y
