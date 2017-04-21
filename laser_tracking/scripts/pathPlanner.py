@@ -9,34 +9,36 @@ from nav_msgs.msg import Odometry #Get the robot position
 
 #Called whenever a laser position is published.
 def goalCB(data):
-    position = data.pose.position
+    goal = data.pose.position
     #This code is called whenever a message is recieved.
     #There are a lot of components in a PoseStamped, but we just need x,y,z:
-    rospy.loginfo("Point Position: [ %f, %f, %f ]"%(position.x, position.y, position.z))
+    rospy.loginfo("Point Position: [ %f, %f, %f ]"%(goal.x, goal.y, goal.z))
 
-    #Based on x,y,z, and the robot's x,y,z, choose a twist linear and angular velocity here
-
-    #publish the twist command
-    #For example, here's a program that just drives in a circle forever, regardless of laser
-    # Twist is a datatype for velocity
-    move_cmd = Twist()
-    # let's go forward at 0.2 m/s
-    move_cmd.linear.x = 0.2
-    # let's turn at 0 radians/s
-    move_cmd.angular.z = 0.5
-    #try:
-    pub.publish(move_cmd)
-    #except CvBridgeError as e:
-    #    print(e)
-
-#Callback for getting robot position data
+#Callback for getting robot position data, also plan and publish commands @100Hz
 def odometryCb(data):
     robotPos = data.pose.pose.position
     robX = robotPos.x
     robY = robotPos.y
     robZ = robotPos.z
     robAngle = data.twist.twist.angular.z #Not sure if this is the correct axis
-    #Get the position error by subtracting these from the goal 
+
+    #########Call the path planner function here, get the resultant velocity and angular velocity
+    #(v,phi)=plan(robX,robY)
+
+    #publish the twist command
+    #For example, here's a program that just drives in a circle forever, regardless of laser
+    # Twist is a datatype for velocity
+    move_cmd = Twist()
+    # let's go forward at 0.2 m/s
+    try:
+        move_cmd.linear.x = v
+        move_cmd.angular.z = phi
+    except:
+        #If these haven't been initialized yet, spin
+        move_cmd.linear.x = 0.0
+        move_cmd.angular.z = 0.5
+    finally:
+        pub.publish(move_cmd)
 
 def listener():
     # In ROS, nodes are uniquely named. If two nodes with the same
@@ -53,7 +55,7 @@ def listener():
     
     #Publishers:
     global pub
-    pub = rospy.Publisher('cmd_vel_mux/input/navi', Twist, queue_size=10)
+    pub = rospy.Publisher('cmd_vel_mux/input/teleop', Twist, queue_size=10)
     #rospy.init_node('talker', anonymous=True)
     rate = rospy.Rate(10) # 10hz
     #rospy.init_node('oodometry', anonymous=True) #make node 
