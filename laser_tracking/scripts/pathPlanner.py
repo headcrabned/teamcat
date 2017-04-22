@@ -1,21 +1,26 @@
 #!/usr/bin/env python
 import rospy
-import tf.transformations
-from std_msgs.msg import String
+import tf
+import std_msgs.msg
 from geometry_msgs.msg import PoseStamped #laser location
 from geometry_msgs.msg import Twist #high level motor control (linear and angular bot velocity)
 from nav_msgs.msg import Odometry #Get the robot position
+from WheelVelocitys import CalculateWheelVelocity
 
 
 #Called whenever a laser position is published.
 def goalCB(data):
-    goal = data.pose.position
+    global goal
+    goal = data
+    #goal = data.pose.position
     #This code is called whenever a message is recieved.
     #There are a lot of components in a PoseStamped, but we just need x,y,z:
-    rospy.loginfo("Point Position: [ %f, %f, %f ]"%(goal.x, goal.y, goal.z))
+    #rospy.loginfo("Point Position: [ %f, %f, %f ]"%(goal.x, goal.y, goal.z))
+    print "Bot relative goal: x:%f, y:%f"%(goal.pose.position.x, goal.pose.position.y)
 
 #Callback for getting robot position data, also plan and publish commands @100Hz
 def odometryCb(data):
+    pass
     robotPos = data.pose.pose.position
     robX = robotPos.x
     robY = robotPos.y
@@ -29,9 +34,11 @@ def odometryCb(data):
     #For example, here's a program that just drives in a circle forever, regardless of laser
     # Twist is a datatype for velocity
     move_cmd = Twist()
+
     # let's go forward at 0.2 m/s
     try:
-        move_cmd.linear.x = v
+        CalculateWheelVelocity(-goal.y,goal.x) #Positive X is forward in the robot's frame, -y is right
+        move_cmd.linear.x = .2
         move_cmd.angular.z = phi
     except:
         #If these haven't been initialized yet, spin
@@ -40,28 +47,35 @@ def odometryCb(data):
     finally:
         pub.publish(move_cmd)
 
-def listener():
-    # In ROS, nodes are uniquely named. If two nodes with the same
-    # name are launched, the previous one is kicked off. The
-    # anonymous=True flag means that rospy will choose a unique
-    # name for our 'listener' node so that multiple listeners can
-    # run simultaneously.
 
+if __name__ == '__main__':
 
     #Listener
     rospy.init_node('laserListener', anonymous=True)
     rospy.Subscriber('/move_base_simple/goal', PoseStamped, goalCB)
     rospy.Subscriber('odom',Odometry,odometryCb)
+    tflistener = tf.TransformListener()
     
     #Publishers:
     global pub
     pub = rospy.Publisher('cmd_vel_mux/input/teleop', Twist, queue_size=10)
     #rospy.init_node('talker', anonymous=True)
-    rate = rospy.Rate(10) # 10hz
-    #rospy.init_node('oodometry', anonymous=True) #make node 
-    
-    # spin() simply keeps python from exiting until this node is stopped
-    rospy.spin()
+    rate = rospy.Rate(1.0) # 10hz
 
-if __name__ == '__main__':
-    listener()
+    while not rospy.is_shutdown():
+        
+        try:
+            #print "trying"
+            t_now = rospy.get_rostime() #Update the goal so it's relative to the current robot position
+            goal.header.stamp = t_now
+            tflistener.waitForTransform('base_link','odom',t_now,rospy.Duration(4.0)) #Make sure we have tf data before doing this
+            localGoal = tflistener.transformPose('odom',goal) #transform nav goal to relative coordinate frame
+            
+        except Exception as e:
+            #print str(e)
+            continue
+            #rospy.sleep(1) #Wait a second for a first goal to come in.
+            #continue
+        x = localGoal.pose.position.x
+        y = localGoal.pose.position.y
+        CalculateWheelVelocity(-y,x) #Positive X is forward in the robot's frame, -y is right

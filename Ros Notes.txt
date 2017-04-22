@@ -33,3 +33,6 @@ rosed <package> <file name> opens a file in sublime :)
  to .bashrc
 
  rosrun laser_tracking pathPlanner.py to run the path planner
+
+ In RVIZ you can choose the "fixed frame", it's always the first item in the display list. The goal, initial pose or any other message will be send in the frame that you have selected there. By default it is /map.
+ If you set the fixed frame as odom or the robot base, 2D nav goals will be published relative to those
