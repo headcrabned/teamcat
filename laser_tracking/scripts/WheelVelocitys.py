@@ -9,6 +9,7 @@ def CalculateWheelVelocity(targetX, targetY):
     RobotHomeX = 0.0;
     RobotHomeY = 0.0;
     wheelOffset = 1.0; # distance from wheel to wheel drive center
+    wheelRadius = 1.0;
     wheelLHomeX = 0.0;
     wheelRHomeX = 0.0;
     wheelLHomeY = 0.0;
@@ -116,7 +117,7 @@ def CalculateWheelVelocity(targetX, targetY):
 
     linearVelocity = linearVelocity + linearVelocity*(percentFaster/100);
     if (wheelLTravel != wheelRTravel):
-        angularVelocity = linearVelocity/radius;
+        angularVelocity = (wheelRadius/(wheelOffset*2)*(wheelRVelocity-wheelLVelocity);
     else:
         angularVelocity = 0;
 
