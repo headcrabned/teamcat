@@ -21,31 +21,29 @@ def goalCB(data):
 #Callback for getting robot position data, also plan and publish commands @100Hz
 def odometryCb(data):
     pass
-    robotPos = data.pose.pose.position
-    robX = robotPos.x
-    robY = robotPos.y
-    robZ = robotPos.z
-    robAngle = data.twist.twist.angular.z #Not sure if this is the correct axis
+    # robotPos = data.pose.pose.position
+    # robX = robotPos.x
+    # robY = robotPos.y
+    # robZ = robotPos.z
+    # robAngle = data.twist.twist.angular.z #Not sure if this is the correct axis
 
-    #########Call the path planner function here, get the resultant velocity and angular velocity
-    #(v,phi)=plan(robX,robY)
 
-    #publish the twist command
-    #For example, here's a program that just drives in a circle forever, regardless of laser
-    # Twist is a datatype for velocity
-    move_cmd = Twist()
+    # #publish the twist command
+    # #For example, here's a program that just drives in a circle forever, regardless of laser
+    # # Twist is a datatype for velocity
+    # move_cmd = Twist()
 
-    # let's go forward at 0.2 m/s
-    try:
-        CalculateWheelVelocity(-goal.y,goal.x) #Positive X is forward in the robot's frame, -y is right
-        move_cmd.linear.x = .2
-        move_cmd.angular.z = phi
-    except:
-        #If these haven't been initialized yet, spin
-        move_cmd.linear.x = 0.0
-        move_cmd.angular.z = 0.5
-    finally:
-        pub.publish(move_cmd)
+    # # let's go forward at 0.2 m/s
+    # try:
+    #     CalculateWheelVelocity(-goal.y,goal.x) #Positive X is forward in the robot's frame, -y is right
+    #     move_cmd.linear.x = .2
+    #     move_cmd.angular.z = phi
+    # except:
+    #     #If these haven't been initialized yet, spin
+    #     move_cmd.linear.x = 0.0
+    #     move_cmd.angular.z = 0.5
+    # finally:
+    #     pub.publish(move_cmd)
 
 
 if __name__ == '__main__':
@@ -63,7 +61,8 @@ if __name__ == '__main__':
     rate = rospy.Rate(1.0) # 10hz
 
     while not rospy.is_shutdown():
-        
+        v = 0
+        phi = 0
         try:
             #print "trying"
             t_now = rospy.get_rostime() #Update the goal so it's relative to the current robot position
@@ -78,4 +77,8 @@ if __name__ == '__main__':
             #continue
         x = localGoal.pose.position.x
         y = localGoal.pose.position.y
-        CalculateWheelVelocity(-y,x) #Positive X is forward in the robot's frame, -y is right
+        (v,phi) = CalculateWheelVelocity(-y,x) #Positive X is forward in the robot's frame, -y is right
+        move_cmd = Twist()
+        move_cmd.linear.x = v
+        move_cmd.angular.z = phi
+        pub.publish(move_cmd)

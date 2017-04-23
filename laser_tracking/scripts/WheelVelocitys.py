@@ -27,6 +27,7 @@ def CalculateWheelVelocity(targetX, targetY):
     wheelRVelocity = 0.0;
 
     driveDistance = math.sqrt((targetX * targetX) + (targetY * targetY));
+    print("Distance:",driveDistance)
     thetaCarInv = targetX / driveDistance;
     thetaCar = math.acos(thetaCarInv);#Angle of the point in reference to the origin
 
@@ -85,8 +86,46 @@ def CalculateWheelVelocity(targetX, targetY):
         wheelLVelocity = 1;
         wheelRVelocity = 1;
 
-    print("Left Wheel Velocity: ",wheelLVelocity);
-    print("Right Wheel Velocity ",wheelRVelocity);
+    #print("Left Wheel Velocity: ",wheelLVelocity, "Left Wheel Travel: ", wheelLTravel);
+    #print("Right Wheel Velocity ",wheelRVelocity, "Right Wheel Travel: ", wheelRTravel);
+
+    angularVelocity = 0.0;
+    linearVelocity = 0.15; # we are going to start with having a linear velocity of 0.5 m/s
+    percentFaster = 0;
+    #Check the distance to figure out the velocity or if the robot needs to stop
+
+    #if the robot is within a cm of the target it needs to stop.
+    if driveDistance <=  0.1:
+        linearVelocity = 0.0;
+        angularVelocity = 0.0;
+    elif driveDistance <= 0.5:
+        percentFaster = -50;
+    elif driveDistance <= 0.5:
+        percentFaster = -25;
+    elif driveDistance <= 1:
+        percentFaster = 0;
+    elif driveDistance <= 1.5:
+        percentFaster = 25;
+    else:
+        percentFaster = 50;
+
+
+    radius = 0.0; #The radius to the center of the robot
+    #The average of the distance of both the wheels should be the distance traveled in the middle of the two wheels
+    radius = (wheelLTravel + wheelRTravel)/2;
+
+    linearVelocity = linearVelocity + linearVelocity*(percentFaster/100);
+    if (wheelLTravel != wheelRTravel):
+        angularVelocity = linearVelocity/radius;
+    else:
+        angularVelocity = 0;
+
+
+    #print("Drive Distance: ",driveDistance, " Linear Velocity: ",linearVelocity, "Angular Velocity: ", angularVelocity);
+    #print("x:",targetX,"y:",targetY)
+    print("v:",linearVelocity,"phi:",angularVelocity)
+    return(linearVelocity,angularVelocity)
+
 
 if __name__ == '__main__':
-    CalculateWheelVelocity(0, 1)
+    CalculateWheelVelocity(0, 0.1)
