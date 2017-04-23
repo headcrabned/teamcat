@@ -117,7 +117,7 @@ def CalculateWheelVelocity(targetX, targetY):
 
     linearVelocity = linearVelocity + linearVelocity*(percentFaster/100);
     if (wheelLTravel != wheelRTravel):
-        angularVelocity = (wheelRadius/(wheelOffset*2)*(wheelRVelocity-wheelLVelocity);
+        angularVelocity = (wheelRadius/(wheelOffset*2))*(wheelRVelocity-wheelLVelocity);
     else:
         angularVelocity = 0;
 
