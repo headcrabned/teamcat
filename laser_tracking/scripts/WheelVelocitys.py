@@ -124,7 +124,7 @@ def CalculateWheelVelocity(targetX, targetY):
 
     #print("Drive Distance: ",driveDistance, " Linear Velocity: ",linearVelocity, "Angular Velocity: ", angularVelocity);
     #print("x:",targetX,"y:",targetY)
-    print("v:",linearVelocity,"phi:",angularVelocity)
+    ##print("v:",linearVelocity,"phi:",angularVelocity)
     return(linearVelocity,angularVelocity)
 
 
