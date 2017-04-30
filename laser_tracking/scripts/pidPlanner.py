@@ -56,12 +56,13 @@ if __name__ == '__main__':
         #Do the actual control here!
         x = localGoal.pose.position.x
         y = localGoal.pose.position.y
-        theta_err = atan2(x,y)
-        phi = -0.5*theta_err
-        if hypot(x,y) > .5:
-            v = .5
+
+        theta_err = atan2(-y,x) #different coordinate systems. Here x=1,y=0 is straight ahead.
+        print theta_err
+        phi = -1.0*theta_err
+        if hypot(x,y) > .05:
+            v = .2
         else:
-            print 'good'
             v=0
         print("localx:",x,"localy:",y)
         #(v,phi) = CalculateWheelVelocity(-y,x) #Positive X is forward in the robot's frame, -y is right
