@@ -31,16 +31,16 @@ if __name__ == '__main__':
     #Publishers:
     pub = rospy.Publisher('cmd_vel_mux/input/teleop', Twist, queue_size=10)
     #rospy.init_node('talker', anonymous=True)
-    rate = rospy.Rate(10) # 10hz
+    rate = rospy.Rate(60) # 10hz
 
-    angle_pid = PID(1,1,0)
+    angle_pid = PID(10.0,0.0,5.0,0.2)
+    t_last = 0.
     while not rospy.is_shutdown():
-        v = 0
-        phi = 0
+        v = 0.
+        phi = 0.
         try:
             #print "trying"
             t_now = rospy.get_rostime() #Update the goal so it's relative to the current robot position
-            t_last = t_now
             goal.header.stamp = t_now
             #tflistener.waitForTransform('base_link','odom',t_now,rospy.Duration(4.0)) #Make sure we have tf data before doing this
             #localGoal = tflistener.transformPose('odom',goal) #transform nav goal to relative coordinate frame
@@ -58,16 +58,20 @@ if __name__ == '__main__':
         y = localGoal.pose.position.y
 
         theta_err = atan2(-y,x) #different coordinate systems. Here x=1,y=0 is straight ahead.
-        print theta_err
-        phi = -1.0*theta_err
+        #phi = -1.0*theta_err
+        phi = angle_pid.update(theta_err,t_now.to_sec())
+        phi = max(min(phi,1.5),-1.5) #maximum hardware turning rate for turtlebot
+        print angle_pid.debug()
         if hypot(x,y) > .05:
             v = .2
         else:
             v=0
-        print("localx:",x,"localy:",y)
+            phi = 0
+        #print("localx:",x,"localy:",y)
         #(v,phi) = CalculateWheelVelocity(-y,x) #Positive X is forward in the robot's frame, -y is right
         #rospy.spin()
         move_cmd = Twist()
         move_cmd.linear.x = v
         move_cmd.angular.z = phi
         pub.publish(move_cmd)
+        rate.sleep()
