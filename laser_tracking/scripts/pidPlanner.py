@@ -30,20 +30,20 @@ if __name__ == '__main__':
     
     #Publishers:
     pub = rospy.Publisher('cmd_vel_mux/input/teleop', Twist, queue_size=10)
-    #rospy.init_node('talker', anonymous=True)
-    rate = rospy.Rate(60) # 10hz
+    rate = rospy.Rate(60) # 60hz
 
-    angle_pid = PID(10.0,0.0,5.0,0.2)
+    #  PID Terms:    P   I   D I_max
+    angle_pid = PID(7.0,0.0,3.0,0.2) #Tuned Parameters
+    #angle_pid = PID(7.0,0.0,0.0,0.2) #Undamped Parameters
+    #angle_pid = PID(7.0,0.0,1.0,0.2) #Underdamped Parameters
+    #angle_pid = PID(1.0,0.0,25.0,0.2) #Overdamped Parameters
     t_last = 0.
     while not rospy.is_shutdown():
         v = 0.
         phi = 0.
         try:
-            #print "trying"
             t_now = rospy.get_rostime() #Update the goal so it's relative to the current robot position
             goal.header.stamp = t_now
-            #tflistener.waitForTransform('base_link','odom',t_now,rospy.Duration(4.0)) #Make sure we have tf data before doing this
-            #localGoal = tflistener.transformPose('odom',goal) #transform nav goal to relative coordinate frame
             tflistener.waitForTransform('odom','base_link',t_now,rospy.Duration(4.0)) #Make sure we have tf data before doing this
             localGoal = tflistener.transformPose('base_link',goal) #transform nav goal to relative coordinate frame
             
@@ -63,7 +63,7 @@ if __name__ == '__main__':
         phi = max(min(phi,1.5),-1.5) #maximum hardware turning rate for turtlebot
         print angle_pid.debug()
         if hypot(x,y) > .05:
-            v = .2
+            v = .3
         else:
             v=0
             phi = 0

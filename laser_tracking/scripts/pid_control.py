@@ -31,6 +31,7 @@ class PID(object):
 
 		if self.t_last == 0:
 			self.t_last = t_now
+			print 'zero-time step'
 			return 0.0
 		else:
 			dt = t_now-self.t_last
